@@ -1,27 +1,55 @@
 @foreach ($data as $index => $d)
     <tr>
-        <td class="check_box">
+        <td class="check_box" id="view" data-id="{{ $d->id }}" data-ishabis="{{ $d->ishabis }}">
             <input type="checkbox" id="myCheckbox-{{ $index }}" name="myCheckbox-{{ $index }}"
                 data-id=" {{ $d->id }}">
         </td>
-        <td><span class="name">{{ $d->bo }}</span></td>
-        <td><span class="name">{{ $d->target_bo }}</span></td>
-        <td><span class="name">{{ $d->tipe_generate == '1' ? '{ Random }' : $d->nama }}</span></td>
-        <td><span class="name">{{ $d->keterangan }}</span></td>
-        <td><span style="{{ $d->tgl_exp < date('Y-m-d') ? 'color: rgba(var(--rgba-danger));' : 'color: green;' }}"
+        <td id="view" data-id="{{ $d->id }}" data-ishabis="{{ $d->ishabis }}"><span
+                class="name">{{ $d->bo }}</span></td>
+        <td id="view" data-id="{{ $d->id }}" data-ishabis="{{ $d->ishabis }}"><span
+                class="name">{{ $d->target_bo }}</span></td>
+        <td style="overflow:unset;" id="view" data-id="{{ $d->id }}" data-ishabis="{{ $d->ishabis }}">
+            @if (isAdmin())
+                <div class="tooltip">
+                    <span class="name">{{ $d->tipe_generate == '1' ? '{ Random }' : $d->nama }}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle"
+                        width="10" height="10" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
+                        <path d="M12 9h.01"></path>
+                        <path d="M11 12h1v4h1"></path>
+                    </svg>
+                    <span class="tooltiptext">{{ $d->jen_voucher }}</span>
+                </div>
+            @else
+                <span class="name">{{ $d->tipe_generate == '1' ? '{ Random }' : $d->nama }}</span>
+            @endif
+        </td>
+        <td id="view" data-id="{{ $d->id }}" data-ishabis="{{ $d->ishabis }}">
+            <span class="name">{{ $d->keterangan }}</span>
+        </td>
+        <td id="view" data-id="{{ $d->id }}" data-ishabis="{{ $d->ishabis }}"><span
+                class="name">{{ date('d-m-Y', strtotime($d->tgl_create)) }}</span>
+
+        <td id="view" data-id="{{ $d->id }}" data-ishabis="{{ $d->ishabis }}"><span
+                style="{{ $d->tgl_exp < date('Y-m-d') ? 'color: rgba(var(--rgba-danger));' : 'color: green;' }}"
                 class="name">{{ $d->tgl_exp < date('Y-m-d') ? date('d-m-Y', strtotime($d->tgl_exp)) . ' ( Expire )' : date('d-m-Y', strtotime($d->tgl_exp)) . ' ( Valid )' }}</span>
         </td>
-        <td>
+        <td id="view" data-id="{{ $d->id }}" data-ishabis="{{ $d->ishabis }}">
             <span class="name"
                 style="{{ $d->isexp == 1 ? 'color: rgba(var(--rgba-danger));' : ($d->total_klaim >= 1 ? 'color: green;' : '') }}">
                 {{ $d->total_klaim }}
             </span>
         </td>
-        <td><span class="name"
+        <td id="view" data-id="{{ $d->id }}" data-ishabis="{{ $d->ishabis }}"><span class="name"
                 style="{{ $d->ishabis == 1 ? 'color: orange;' : '' }}">{{ $d->jumlah . ($d->ishabis == '1' ? ' (Habis)' : '') }}</span>
         </td>
         @if (isAdmin())
-            <td><span class="name">{{ number_format($d->total, 0, ',', '.') }}</span></td>
+            <td id="view" data-id="{{ $d->id }}" data-ishabis="{{ $d->ishabis }}"><span
+                    class="name">{{ number_format($d->total_budget, 0, ',', '.') }}</span></td>
+            <td id="view" data-id="{{ $d->id }}" data-ishabis="{{ $d->ishabis }}"><span
+                    class="name">{{ number_format($d->total, 0, ',', '.') }}</span></td>
             {{-- <td><span class="name">{{ date('d-m-Y H:i:s', strtotime($d->tgl_berita)) }}</span></td> --}}
         @endif
         <td class="kolom_action">
@@ -61,7 +89,7 @@
                 </a>
                 @if (isAdmin())
                     <a href="#" id="print" data-id="{{ $d->id }}"
-                        onclick="confirmDownload({{ $d->id }})">
+                        onclick="confirmDownload({{ $d->id }}, '{{ $d->keterangan }}')">
                         <div class="list_action">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                 class="icon icon-tabler icon-tabler-file-spreadsheet" width="24" height="24"
@@ -131,7 +159,7 @@
     <td></td>
 </tr>
 <script>
-    function confirmDownload(dataId) {
+    function confirmDownload(dataId, Keterangan) {
         event.preventDefault();
 
         Swal.fire({
@@ -142,19 +170,18 @@
             cancelButtonText: 'Tidak'
         }).then((result) => {
             if (result.isConfirmed) {
-                exportArrayToExcel(dataId);
+                exportArrayToExcel(dataId, Keterangan);
             }
         });
     }
 
-    function exportArrayToExcel(dataId) {
+    function exportArrayToExcel(dataId, Keterangan) {
         var title = "{{ $title }}";
         var url = "/voucher_print/" + dataId; // Ganti dengan URL rute yang sesuai
         console.log(url);
         fetch(url)
             .then(response => response.json())
             .then(data => {
-                console.log(data);
                 var worksheet = XLSX.utils.aoa_to_sheet(data);
                 var columnWidths = [{
                         wch: 5
@@ -203,7 +230,7 @@
                 var downloadLink = document.createElement("a");
                 document.body.appendChild(downloadLink);
                 downloadLink.href = window.URL.createObjectURL(blob);
-                downloadLink.download = "data.xlsx"; // Ganti dengan nama file yang diinginkan
+                downloadLink.download = Keterangan + " .xlsx"; // Ganti dengan nama file yang diinginkan
                 downloadLink.click();
             })
             .catch(error => {
@@ -376,6 +403,7 @@
             var ishabis = $(this).data('ishabis');
             var isdemo = "{{ $isdemo }}";
             var search_data = document.getElementsByName("search_data")[0].value;
+
             if (ishabis == '1') {
                 Swal.fire({
                     icon: 'warning',
@@ -385,10 +413,11 @@
                 return;
             }
             $('.aplay_code').empty();
-            $('.aplay_code').load('/voucher/' + id + '/' + isdemo + '/' + search_data, function() {
+            $('.aplay_code').load('/voucher/' + id + '/' + isdemo + '/' + encodeURIComponent(
+                search_data), function() {
                 adjustElementSize();
                 localStorage.setItem('lastPage', '/voucher/' + id + '/' + isdemo + '/' +
-                    search_data);
+                    encodeURIComponent(search_data));
             });
         });
 
@@ -502,6 +531,6 @@
             }
         }
 
-        clickRefreshButton();
+        // clickRefreshButton();
     });
 </script>

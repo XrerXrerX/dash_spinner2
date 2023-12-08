@@ -18,6 +18,8 @@ class GenerateVoucherController extends Controller
      */
     public function index(Request $request, $isdemo = '0', $search_data = null)
     {
+
+        // dd($search_data);
         return view('generatevoucher.index', [
             'title' => 'Generate Voucher',
             'menu' => 'bo',
@@ -50,6 +52,26 @@ class GenerateVoucherController extends Controller
 
         $sql = DB::select($query);
 
+
+        foreach ($sql as $index => $item) {
+            $jenvoucher = explode(',', $item->jenis_voucher);
+            $jenvoucher = array_map('intval', $jenvoucher);
+
+            $presentase = explode(',', $item->presentase);
+            $presentase = array_map('intval', $presentase);
+
+            $jenis_voucher = [];
+            foreach ($jenvoucher as $idx => $itm) {
+                $queryJenvoucher = "SELECT nama FROM spinner_jenisvoucher WHERE `index` = '$itm'";
+                $results = DB::select($queryJenvoucher);
+                array_push($jenis_voucher, $results[0]->nama . ' ' . ($presentase[$idx] == '0' ? '100' : $presentase[$idx])  . '%');
+            }
+            $jenis_voucher = implode(", ", $jenis_voucher);
+            $item->jen_voucher = $jenis_voucher;
+
+            // $queryJenvoucher = "SELECT nama FROM spinner_jenisvoucher WHERE ";
+            // $sql = DB::select($query);
+        }
         return view('generatevoucher.viewtable', [
             'title' => 'Generate Voucher',
             'menu' => 'bo',
@@ -78,7 +100,8 @@ class GenerateVoucherController extends Controller
     {
         $query = "SELECT * FROM (
             SELECT 
-            A.tipe_generate,A.target_bo,
+            A.jenis_voucher, A.presentase, DATE(A.created_at) AS tgl_create,
+            A.tipe_generate,A.target_bo, CASE coalesce(A.tipe_generate,0) WHEN '0' THEN G.total ELSE A.total_budget END AS total_budget,
             CASE WHEN A.tgl_exp < DATE(NOW()) THEN 1 ELSE 0 END as isexp, coalesce(A.isdemo,0) as isdemo,
             CASE WHEN COALESCE(D.total_kalimvoucher,0) = COALESCE(E.total_voucher,0) THEN 1 ELSE 0 END as ishabis,
             COALESCE(D.total_kalimvoucher,0) as total_kalimvoucher, COALESCE(E.total_voucher,0) as total_voucher,
@@ -111,6 +134,12 @@ class GenerateVoucherController extends Controller
             WHERE A.tgl_klaim IS NOT NULL
             GROUP BY A.genvoucherid
             ) F ON A.id = F.id
+            LEFT JOIN (
+            SELECT A.genvoucherid AS id, SUM(C.saldo_point) as total FROM spinner_voucher A
+            INNER JOIN spinner_generatevoucher B ON A.genvoucherid = B.id
+            LEFT JOIN spinner_jenisvoucher C ON A.jenis_voucher = C.index
+            GROUP BY A.genvoucherid
+            ) G ON A.id = G.id
             
             ) A
             $filter AND A.isdemo = '$isdemo'

@@ -166,13 +166,14 @@ class UserController extends Controller
         $data = $request->all();
         $errors = [];
         foreach ($ids as $index => $id) {
+
             $alldata = [
                 'id' => $data["id"][$index],
                 'name' => $data["name"][$index],
                 'divisi' => $data["divisi"][$index],
                 'username' => $data["username"][$index],
                 'password' => $data["password"][$index],
-                'image' => $data["image"][$index]
+                'image' => isset($data["image"][$index]) ? $data["image"][$index] : ''
             ];
             $validator = Validator::make($alldata, [
                 'name' => 'required',
@@ -203,6 +204,7 @@ class UserController extends Controller
                     $user = User::find($id);
                     $user->name = $alldata['name'];
                     $user->username = $alldata['username'];
+                    $user->divisi = $alldata['divisi'];
                     if ($alldata['password'] != '') {
                         $user->password = bcrypt($alldata['password']);
                     }
@@ -217,7 +219,6 @@ class UserController extends Controller
                         $image->storeAs('public/profileImg', $imageName);
                         $user->image = $imageName;
                     }
-
                     $user->save();
                 } catch (\Exception $e) {
                     $errorMessage = $e->getMessage();
@@ -279,7 +280,7 @@ class UserController extends Controller
         $id = $request->id;
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:500',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:500',
         ], [
             'name.required' => 'Nama tidak boleh kosong.',
             'image.required' => 'Pilih gambar yang ingin diunggah.',

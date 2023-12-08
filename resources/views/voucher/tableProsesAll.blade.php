@@ -1,6 +1,8 @@
 @foreach ($data as $index => $d)
     <tr id="tr_{{ $d->id }}">
-        <td><span class="name">{{ $d->jenis_voucher }}</span></td>
+        <td><span class="name" style="font-size: 22px;
+            font-weight: 600;">{{ $d->jenis_voucher }}</span>
+        </td>
         <td><span class="name">{{ $d->keterangan }}</span></td>
         <td><span class="name">{{ $d->kode_voucher }}</span></td>
         <td><span class="name">
@@ -16,7 +18,7 @@
                     @csrf
                     <input type="hidden" class="id" name="id" value="{{ $d->id }}">
                     <input type="text" class="userklaim" name="userklaim" placeholder="Masukkan No.Rek"
-                        required="" style="width: 50%" value="{{ $d->userklaim }}"
+                        required="" style="width: 50%; font-size: 10px;" value="{{ $d->userklaim }}"
                         {{ $d->userklaim == '' ? '' : 'readonly' }} data-userklaim="{{ $d->userklaim }}">
                     <button class="sec_botton btn_secondary wdi-20 btn_submit btn-submit d-none" type="submit">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check"
@@ -130,7 +132,7 @@
             '<form method="POST" class="form-kode" data-index="' + data.index + '">' +
             '@csrf' +
             '<input type="hidden" class="id" name="id" value="' + data.id + '">' +
-            '<input type="text" class="userklaim" name="userklaim" placeholder="Masukkan No.Rek" required="" style="width: 50%" value="' +
+            '<input type="text" class="userklaim" name="userklaim" placeholder="Masukkan No.Rek" required="" style="width: 50%; font-size: 10px;" value="' +
             data.userklaim + '"' +
             (data.userklaim == '' ? '' : 'readonly') + ' data-userklaim="' + data.userklaim + '">' +
             '<button class="sec_botton btn_secondary wdi-20 btn_submit btn-submit d-none" type="submit">' +

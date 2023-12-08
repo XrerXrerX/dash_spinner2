@@ -79,7 +79,7 @@
                 <th></th>
                 <th>User Kode</th>
 
-                <th style="width: 50%;">No Rekening</th>
+                <th style="width: 100%;">No Rekening</th>
                 <th>Tanggal Klaim</th>
                 <th>Status Bayar</th>
                 <th>Tanggal Exp</th>

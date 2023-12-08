@@ -15,9 +15,11 @@
                 <span class="sec_label">Divisi</span>
                 <select id="divisi" name="divisi">
                     @foreach ($datawebsite as $website)
-                        <option value="{{ $website->nama }}">
-                            {{ $website->nama }}</option>
+                    <option value="{{ $website->nama }}">
+                        {{ $website->nama }}
+                    </option>
                     @endforeach
+                    <option value="admin">admin</option>
                 </select>
             </div>
             <div class="list_form">
@@ -30,8 +32,7 @@
             </div>
             <div class="list_form">
                 <span class="sec_label">Konfirmasi Password</span>
-                <input type="password" id="cpassword" name="cpassword" placeholder="Masukkan Konfirmasi Password"
-                    required>
+                <input type="password" id="cpassword" name="cpassword" placeholder="Masukkan Konfirmasi Password" required>
             </div>
             <div class="list_form">
                 <span class="sec_label">Gambar Profile</span>

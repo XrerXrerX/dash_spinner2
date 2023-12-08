@@ -188,7 +188,8 @@
                     {{-- isi data --}}
                     @foreach ($data as $index => $d)
                         <tr id="tr_{{ $d->id }}">
-                            <td><span
+                            <td style="font-size: 22px;
+                            font-weight: 600;"><span
                                     class="name">{{ $d->tipe_generate == '1' ? ($d->tgl_klaim == null ? '{ Random }' : $d->jenis_voucher) : $d->jenis_voucher }}</span>
                             </td>
                             <td><span class="name">{{ $d->keterangan }}</span></td>
@@ -600,13 +601,18 @@
             var isdemo = "{{ $isdemo != 1 ? 0 : $isdemo }}";
 
             var search_data = "{{ $search_data }}";
+            search_data = encodeURIComponent(search_data);
+
+            // console.log(search_data);
+
             $('.aplay_code').empty();
             // if (isdemo == '1') {
-            $('.aplay_code').load('/generatevoucher/' + isdemo + '/' + search_data, function() {
-                adjustElementSize();
-                localStorage.setItem('lastPage', '/generatevoucher/' + isdemo + '/' +
-                    search_data);
-            });
+            $('.aplay_code').load('/generatevoucher/' + isdemo + '/' + search_data,
+                function() {
+                    adjustElementSize();
+                    localStorage.setItem('lastPage', '/generatevoucher/' + isdemo + '/' +
+                        search_data);
+                });
             // } else {
             //     alert('dodol');
             //     $('.aplay_code').load('/generatevoucher/' + isdemo + '/' + search_data, function() {
